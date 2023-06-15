@@ -1,0 +1,36 @@
+version: '3'
+services:
+  asterisk:
+    build: ./asterisk/debian/13.38.3
+    image: andrius/asterisk
+    container_name: asterisk
+    entrypoint: ./docker-entrypoint.sh
+    volumes:
+      - ./asterisk/debian/13.38.3:/mnt/13.38.3
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    env_file:
+      - .env
+    environment:
+      - COMPONENT_NAME=asterisk-1
+    expose:
+      - "5060/udp"
+      - "5061/udp"
+      - "5060/tcp"
+      - "5061/tcp"
+    networks:
+      ingress:
+        ipv4_address: 172.22.0.66
+#this one is ignored!
+    deploy:
+      mode: global
+      placement:
+        constraints: [node.platform.os == linux]
+
+networks:
+  ingress:
+    driver: overlay
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.22.0.0/24
